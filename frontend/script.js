@@ -796,7 +796,6 @@ async function handleLogin(e) {
 document.addEventListener('DOMContentLoaded', function() {
     const toggleChatBtn = document.getElementById('toggleChatBtn');
     const container = document.querySelector('.container');
-    const scheduleDiv = document.querySelector('.schedule');
     const calendarEl = document.getElementById('calendar');
 
     function updateLayout() {
