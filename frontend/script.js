@@ -73,32 +73,41 @@ function initializeCalendar() {
             locale: 'zh-cn',
             editable: true,
             selectable: true,
-            select: function(info) {
-                addEventPrompt(info.start, info.end, info.allDay);
-            },
-            eventClick: function(info) {
-                showEventDetails(info.event);
-            },
-            events: [],
+            events: loadEvents(), // 确保事件数据正确加载
             displayEventTime: true,
             eventTimeFormat: {
                 hour: 'numeric',
                 minute: '2-digit',
                 meridiem: 'short'
             },
-            eventAdd: function(info) {
-                if (isMemoryModeEnabled) saveEvents();
+            nowIndicator: true,
+            eventDidMount: function(info) {
+                // 处理多日事件
+                if (info.event.end) {
+                    const days = Math.ceil((info.event.end - info.event.start) / (1000 * 60 * 60 * 24));
+                    if (days > 1) {
+                        info.el.style.gridColumn = `span ${days}`;
+                        info.el.style.width = '100%';
+                    }
+                }
             },
-            eventChange: function(info) {
-                if (isMemoryModeEnabled) saveEvents();
+            eventContent: function(arg) {
+                let content = arg.event.title;
+                if (arg.event.allDay) {
+                    return { html: `<div class="fc-event-main-frame"><div class="fc-event-title-container"><div class="fc-event-title fc-sticky">${content}</div></div></div>` };
+                }
+                return { html: `<div class="fc-event-main"><div class="fc-event-title">${content}</div></div>` };
             },
-            eventRemove: function(info) {
-                if (isMemoryModeEnabled) saveEvents();
-            },
-            handleWindowResize: true,
+            datesSet: function(info) {
+                setTimeout(() => {
+                    scrollToCurrentTime(info.view.type);
+                }, 0);
+            }
         });
         calendar.render();
         console.log('Calendar initialized:', calendar);
+
+        addCustomTimeIndicator();
     } else {
         console.error('Calendar element not found');
     }
@@ -690,21 +699,17 @@ function saveEvents() {
 
 // 修改 loadEvents 函数
 function loadEvents() {
-    if (isMemoryModeEnabled) {
-        const savedEvents = localStorage.getItem('calendarEvents');
-        if (savedEvents) {
-            const events = JSON.parse(savedEvents);
-            events.forEach(event => {
-                calendar.addEvent({
-                    title: event.title,
-                    start: new Date(event.start),
-                    end: event.end ? new Date(event.end) : null,
-                    allDay: event.allDay,
-                    extendedProps: event.extendedProps
-                });
-            });
-        }
+    const savedEvents = localStorage.getItem('calendarEvents');
+    if (savedEvents) {
+        return JSON.parse(savedEvents).map(event => ({
+            title: event.title,
+            start: new Date(event.start),
+            end: event.end ? new Date(event.end) : null,
+            allDay: event.allDay,
+            extendedProps: event.extendedProps
+        }));
     }
+    return [];
 }
 
 function toggleMemoryMode() {
