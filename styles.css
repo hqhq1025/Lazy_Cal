@@ -1,0 +1,15 @@
+.ai-assistant-container {
+  display: flex; /* 使用flex布局 */
+  align-items: center; /* 垂直居中对齐 */
+  justify-content: space-between; /* 在主轴上均匀分布 */
+  padding: 10px; /* 添加适当的内边距 */
+}
+
+.ai-assistant-upper-section {
+  /* 现有的样式 */
+}
+
+.ai-assistant-lower-section {
+  /* 现有的样式 */
+  margin: 0; /* 移除下方部分的外边距 */
+}

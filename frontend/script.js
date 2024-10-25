@@ -57,60 +57,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initializeCalendar() {
     const calendarEl = document.getElementById('calendar');
-    if (calendarEl) {
-        calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            headerToolbar: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            },
-            views: {
-                dayGridMonth: { buttonText: '月' },
-                timeGridWeek: { buttonText: '周' },
-                timeGridDay: { buttonText: '日' }
-            },
-            locale: 'zh-cn',
-            editable: true,
-            selectable: true,
-            events: loadEvents(), // 确保事件数据正确加载
-            displayEventTime: true,
-            eventTimeFormat: {
-                hour: 'numeric',
-                minute: '2-digit',
-                meridiem: 'short'
-            },
-            nowIndicator: true,
-            eventDidMount: function(info) {
-                // 处理多日事件
-                if (info.event.end) {
-                    const days = Math.ceil((info.event.end - info.event.start) / (1000 * 60 * 60 * 24));
-                    if (days > 1) {
-                        info.el.style.gridColumn = `span ${days}`;
-                        info.el.style.width = '100%';
-                    }
-                }
-            },
-            eventContent: function(arg) {
-                let content = arg.event.title;
-                if (arg.event.allDay) {
-                    return { html: `<div class="fc-event-main-frame"><div class="fc-event-title-container"><div class="fc-event-title fc-sticky">${content}</div></div></div>` };
-                }
-                return { html: `<div class="fc-event-main"><div class="fc-event-title">${content}</div></div>` };
-            },
-            datesSet: function(info) {
-                setTimeout(() => {
-                    scrollToCurrentTime(info.view.type);
-                }, 0);
-            }
-        });
-        calendar.render();
-        console.log('Calendar initialized:', calendar);
-
-        addCustomTimeIndicator();
-    } else {
+    if (!calendarEl) {
         console.error('Calendar element not found');
+        return;
     }
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        views: {
+            dayGridMonth: { buttonText: '月' },
+            timeGridWeek: { buttonText: '周' },
+            timeGridDay: { buttonText: '日' }
+        },
+        locale: 'zh-cn',
+        editable: true,
+        selectable: true,
+        events: loadEvents(),
+        displayEventTime: true,
+        eventTimeFormat: {
+            hour: 'numeric',
+            minute: '2-digit',
+            meridiem: 'short'
+        },
+        nowIndicator: true,
+        // 添加事件处理器
+        eventClick: function(info) {
+            showEventDetails(info.event);
+        },
+        select: function(info) {
+            addEventPrompt(info.start, info.end, info.allDay);
+        }
+    });
+
+    calendar.render();
+    console.log('Calendar initialized:', calendar);
+
+    // 在视图加载完成后添加时间指示器和滚动到当前时间
+    calendar.on('viewDidMount', function(info) {
+        if (info.view.type.includes('timeGrid')) {
+            setTimeout(() => {
+                addCustomTimeIndicator(calendar);
+                scrollToCurrentTime();
+            }, 100);
+        }
+    });
 }
 
 const userInput = document.getElementById('userInput');
@@ -842,48 +837,161 @@ document.addEventListener('DOMContentLoaded', function() {
     updateLayout(); // 初始更新布局
 });
 
-const settingsBtn = document.getElementById('settingsBtn');
-const settingsPanel = document.getElementById('settingsPanel');
-const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+document.addEventListener('DOMContentLoaded', function() {
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
 
-settingsBtn.addEventListener('click', openSettings);
-closeSettingsBtn.addEventListener('click', closeSettings);
+    // 检查元素是否存在后再添加事件监听器
+    if (settingsBtn && settingsPanel && closeSettingsBtn) {
+        settingsBtn.addEventListener('click', openSettings);
+        closeSettingsBtn.addEventListener('click', closeSettings);
+        
+        // 点击面板外部关闭设置
+        document.addEventListener('click', (e) => {
+            if (settingsPanel.classList.contains('show') && 
+                !settingsPanel.contains(e.target) && 
+                e.target !== settingsBtn) {
+                closeSettings();
+            }
+        });
+    }
+
+    // 更新记忆模式开关的处理
+    const memoryModeToggle = document.getElementById('memoryModeToggle');
+    if (memoryModeToggle) {
+        memoryModeToggle.addEventListener('change', () => {
+            isMemoryModeEnabled = memoryModeToggle.checked;
+            localStorage.setItem('memoryModeEnabled', isMemoryModeEnabled);
+            if (isMemoryModeEnabled) {
+                saveEvents();
+            } else {
+                localStorage.removeItem('calendarEvents');
+            }
+        });
+
+        // 初始化记忆模式状态
+        const savedMemoryMode = localStorage.getItem('memoryModeEnabled');
+        if (savedMemoryMode !== null) {
+            isMemoryModeEnabled = JSON.parse(savedMemoryMode);
+            memoryModeToggle.checked = isMemoryModeEnabled;
+        }
+    }
+});
 
 function openSettings() {
-    settingsPanel.classList.add('show');
+    const settingsPanel = document.getElementById('settingsPanel');
+    if (settingsPanel) {
+        settingsPanel.classList.add('show');
+    }
 }
 
 function closeSettings() {
-    settingsPanel.classList.remove('show');
+    const settingsPanel = document.getElementById('settingsPanel');
+    if (settingsPanel) {
+        settingsPanel.classList.remove('show');
+    }
 }
 
-// 点击面板外部关闭设置
-document.addEventListener('click', (e) => {
-    if (settingsPanel.classList.contains('show') && 
-        !settingsPanel.contains(e.target) && 
-        e.target !== settingsBtn) {
-        closeSettings();
+// 添加自定义时间指示器
+function addCustomTimeIndicator(calendar) {
+    const timeIndicator = document.createElement('div');
+    timeIndicator.className = 'custom-time-indicator';
+    
+    function updateTimeIndicator() {
+        const now = new Date();
+        const minutes = now.getHours() * 60 + now.getMinutes();
+        const top = (minutes / 1440) * 100;
+        timeIndicator.style.top = `${top}%`;
     }
-});
 
-// 更新记忆模式开关的处理
-const memoryModeToggle = document.getElementById('memoryModeToggle');
-memoryModeToggle.addEventListener('change', () => {
-    isMemoryModeEnabled = memoryModeToggle.checked;
-    localStorage.setItem('memoryModeEnabled', isMemoryModeEnabled);
-    if (isMemoryModeEnabled) {
-        saveEvents();
-    } else {
-        localStorage.removeItem('calendarEvents');
+    updateTimeIndicator();
+    setInterval(updateTimeIndicator, 60000); // 每分钟更新一次
+
+    const timeGrid = calendar.el.querySelector('.fc-timegrid-body');
+    if (timeGrid) {
+        timeGrid.appendChild(timeIndicator);
     }
-});
+}
 
-// 在页面加载时初始化记忆模式状态
-document.addEventListener('DOMContentLoaded', () => {
-    const savedMemoryMode = localStorage.getItem('memoryModeEnabled');
-    if (savedMemoryMode !== null) {
-        isMemoryModeEnabled = JSON.parse(savedMemoryMode);
-        memoryModeToggle.checked = isMemoryModeEnabled;
+// 滚动到当前时间
+function scrollToCurrentTime() {
+    const timeGridBody = document.querySelector('.fc-timegrid-body');
+    const scroller = document.querySelector('.fc-scroller-liquid-absolute');
+    
+    if (timeGridBody && scroller) {
+        const now = new Date();
+        const minutes = now.getHours() * 60 + now.getMinutes();
+        const scrollPosition = (minutes / 1440) * timeGridBody.scrollHeight;
+        scroller.scrollTop = scrollPosition - (scroller.clientHeight / 2);
     }
-});
+}
 
+// 初始化日历
+function initializeCalendar() {
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) {
+        console.error('Calendar element not found');
+        return;
+    }
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        views: {
+            dayGridMonth: { buttonText: '月' },
+            timeGridWeek: { buttonText: '周' },
+            timeGridDay: { buttonText: '日' }
+        },
+        locale: 'zh-cn',
+        editable: true,
+        selectable: true,
+        events: loadEvents(),
+        displayEventTime: true,
+        eventTimeFormat: {
+            hour: 'numeric',
+            minute: '2-digit',
+            meridiem: 'short'
+        },
+        nowIndicator: true,
+        // 添加事件处理器
+        eventClick: function(info) {
+            showEventDetails(info.event);
+        },
+        select: function(info) {
+            addEventPrompt(info.start, info.end, info.allDay);
+        }
+    });
+
+    calendar.render();
+    console.log('Calendar initialized:', calendar);
+
+    // 在视图加载完成后添加时间指示器和滚动到当前时间
+    calendar.on('viewDidMount', function(info) {
+        if (info.view.type.includes('timeGrid')) {
+            setTimeout(() => {
+                addCustomTimeIndicator(calendar);
+                scrollToCurrentTime();
+            }, 100);
+        }
+    });
+}
+
+// 确保在DOM加载完成后初始化日历和其他功能
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCalendar();
+    
+    // 初始化事件监听器
+    const toggleChatBtn = document.getElementById('toggleChatBtn');
+    if (toggleChatBtn) {
+        toggleChatBtn.addEventListener('click', function() {
+            document.querySelector('.container').classList.toggle('chat-hidden');
+        });
+    }
+
+    // 其他事件监听器初始化...
+});
