@@ -1306,3 +1306,58 @@ body, .fc {
     border-bottom: none;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
 }
+
+/* 默认样式，适用于横屏模式 */
+.toggle-chat-btn {
+    position: absolute;
+    right: 25%;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #0071e3;
+    color: white;
+    border: none;
+    padding: 10px 5px;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.toggle-chat-btn i {
+    transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.chat {
+    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.chat-hidden .chat {
+    transform: translateX(100%);
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.chat-hidden .toggle-chat-btn {
+    right: 0;
+}
+
+.chat-hidden .toggle-chat-btn i {
+    transform: rotate(180deg);
+}
+
+/* 在竖屏模式下禁用收回功能 */
+@media screen and (max-width: 768px) {
+    .toggle-chat-btn {
+        display: none; /* 隐藏切换按钮 */
+    }
+
+    .chat {
+        transform: none !important; /* 确保聊天框始终可见 */
+        width: 100%; /* 占满可用宽度 */
+        padding: 20px; /* 恢复内边距 */
+    }
+
+    .schedule {
+        width: 100%; /* 确保日历占满可用宽度 */
+    }
+}

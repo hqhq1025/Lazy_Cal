@@ -799,33 +799,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const scheduleDiv = document.querySelector('.schedule');
     const calendarEl = document.getElementById('calendar');
 
+    function updateLayout() {
+        if (window.innerWidth > window.innerHeight) {
+            // 横屏模式
+            toggleChatBtn.style.display = 'block';
+        } else {
+            // 竖屏模式
+            toggleChatBtn.style.display = 'none';
+            container.classList.remove('chat-hidden');
+            calendarEl.style.height = ''; // 恢复原始高度
+        }
+    }
+
     toggleChatBtn.addEventListener('click', function() {
         container.classList.toggle('chat-hidden');
         
-        // 给浏览器一点时间来应用 CSS 变化
         setTimeout(() => {
             if (calendar) {
                 calendar.updateSize();
-                
-                // 调整日历的宽高比
                 if (container.classList.contains('chat-hidden')) {
                     const width = calendarEl.offsetWidth;
-                    calendarEl.style.height = `${width * 0.75}px`; // 设置高度为宽度的 75%
+                    calendarEl.style.height = `${width * 0.75}px`;
                 } else {
-                    calendarEl.style.height = ''; // 恢复原始高度
+                    calendarEl.style.height = '';
                 }
-                
                 calendar.render();
             }
-        }, 500);  // 500ms 与 CSS 过渡时间相匹配
+        }, 500);
     });
 
-    // 监听窗口大小变化
     window.addEventListener('resize', function() {
+        updateLayout();
         if (calendar) {
             calendar.updateSize();
-            
-            // 在窗口大小变化时也调整日历的宽高比
             if (container.classList.contains('chat-hidden')) {
                 const width = calendarEl.offsetWidth;
                 calendarEl.style.height = `${width * 0.75}px`;
@@ -833,6 +839,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    updateLayout(); // 初始更新布局
 });
 
 const settingsBtn = document.getElementById('settingsBtn');
