@@ -92,6 +92,8 @@ function initializeCalendar() {
     calendar.render();
     console.log('Calendar initialized:', calendar);
 
+    initializeCustomToolbar();
+
     // 在视图加载完成后添加时间指示器和滚动到当前时间
     calendar.on('viewDidMount', function(info) {
         if (info.view.type.includes('timeGrid')) {
@@ -101,8 +103,6 @@ function initializeCalendar() {
             }, 100);
         }
     });
-
-    initializeCustomToolbar();
 }
 
 const userInput = document.getElementById('userInput');
@@ -790,3 +790,46 @@ document.addEventListener('DOMContentLoaded', function() {
         isInitialized = true;
     }
 });
+
+function initializeCustomToolbar() {
+    const prevButton = document.querySelector('.prev-button');
+    const nextButton = document.querySelector('.next-button');
+    const todayButton = document.querySelector('.calendar-today-button');
+    const viewButtons = document.querySelectorAll('.calendar-view-button');
+
+    prevButton.addEventListener('click', () => {
+        calendar.prev();
+        updateCalendarTitle();
+    });
+
+    nextButton.addEventListener('click', () => {
+        calendar.next();
+        updateCalendarTitle();
+    });
+
+    todayButton.addEventListener('click', () => {
+        calendar.today();
+        updateCalendarTitle();
+    });
+
+    viewButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const view = e.target.dataset.view;
+            calendar.changeView(view);
+            viewButtons.forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            updateCalendarTitle();
+        });
+    });
+
+    updateCalendarTitle();
+}
+
+function updateCalendarTitle() {
+    const date = calendar.getDate();
+    const formattedDate = new Intl.DateTimeFormat('zh-CN', {
+        year: 'numeric',
+        month: 'long'
+    }).format(date);
+    document.querySelector('.calendar-title').textContent = formattedDate;
+}
