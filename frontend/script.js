@@ -64,11 +64,7 @@ function initializeCalendar() {
 
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
+        headerToolbar: false, // 禁用默认的头部工具栏
         views: {
             dayGridMonth: { buttonText: '月' },
             timeGridWeek: { buttonText: '周' },
@@ -85,7 +81,6 @@ function initializeCalendar() {
             meridiem: 'short'
         },
         nowIndicator: true,
-        // 添加事件处理器
         eventClick: function(info) {
             showEventDetails(info.event);
         },
@@ -106,6 +101,8 @@ function initializeCalendar() {
             }, 100);
         }
     });
+
+    initializeCustomToolbar();
 }
 
 const userInput = document.getElementById('userInput');
@@ -137,35 +134,114 @@ async function callAI(userInput) {
 
 // 修改 processInput 函数
 async function processInput() {
-    notificationDate = new Date(); // 更新 notificationDate
     const input = userInput.value.trim();
     if (input) {
-        updateChat(`用户输入: ${input}`);
         try {
             const aiResponse = await callAI(input);
-            updateChat(`AI回复: ${aiResponse}`);
             const { schedules, reminders } = parseAIResponse(aiResponse, input);
             
-            console.log('Parsed schedules:', schedules);
-            console.log('Parsed reminders:', reminders);
-
-            if (schedules.length > 0) {
-                await showConfirmDialog(schedules);
-                // 移除这里的 addEventToCalendar 调用
+            if (schedules.length > 0 || reminders.length > 0) {
+                showAIResponseModal(schedules, reminders);
             } else {
-                updateChat('无法从AI回复中提取完整的任务信息，请尝试更明确的表述。');
-            }
-
-            if (reminders.length > 0) {
-                updateChat('提醒事项：');
-                reminders.forEach(reminder => updateChat(`- ${reminder}`));
+                showNoScheduleDetectedModal();
             }
         } catch (error) {
             console.error('处理输入时出错:', error);
-            updateChat(`处理输入出错: ${error.message}。请尝试重新输入或联系管理员。`);
+            showErrorModal(error.message);
         }
         userInput.value = '';
     }
+}
+
+// 新增函数：显示AI响应模态框
+function showAIResponseModal(schedules, reminders) {
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalCancel = document.getElementById('modalCancel');
+    
+    modalTitle.textContent = 'AI助手识别结果';
+    
+    let bodyContent = '';
+    if (schedules.length > 0) {
+        bodyContent += '<h3>识别到的日程：</h3>';
+        schedules.forEach((schedule, index) => {
+            bodyContent += `
+                <div>
+                    <p><strong>日程 ${index + 1}:</strong> ${schedule.title}</p>
+                    <p>开始时间: ${schedule.start.toLocaleString()}</p>
+                    <p>结束时间: ${schedule.end ? schedule.end.toLocaleString() : '未指定'}</p>
+                    <p>重复: ${schedule.recurrence}</p>
+                </div>
+            `;
+        });
+    }
+    
+    if (reminders.length > 0) {
+        bodyContent += '<h3>识别到的提醒：</h3>';
+        reminders.forEach((reminder, index) => {
+            bodyContent += `<p><strong>提醒 ${index + 1}:</strong> ${reminder}</p>`;
+        });
+    }
+    
+    modalBody.innerHTML = bodyContent;
+    
+    modalConfirm.textContent = '添加日程';
+    modalConfirm.onclick = () => {
+        schedules.forEach(addEventToCalendar);
+        hideModal();
+    };
+    
+    modalCancel.textContent = '取消';
+    modalCancel.onclick = hideModal;
+    
+    showModal();
+}
+
+// 新增函数：显示未检测到日程的模态框
+function showNoScheduleDetectedModal() {
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalCancel = document.getElementById('modalCancel');
+    
+    modalTitle.textContent = 'AI助手提示';
+    modalBody.innerHTML = '<p>未能从输入中识别出完整的日程信息，请尝试更明确的表述。</p>';
+    
+    modalConfirm.style.display = 'none';
+    modalCancel.textContent = '确定';
+    modalCancel.onclick = hideModal;
+    
+    showModal();
+}
+
+// 新增函数：显示错误模态框
+function showErrorModal(errorMessage) {
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const modalCancel = document.getElementById('modalCancel');
+    
+    modalTitle.textContent = '错误';
+    modalBody.innerHTML = `<p>处理输入时出错: ${errorMessage}。请尝试重新输入或联系管理员。</p>`;
+    
+    modalConfirm.style.display = 'none';
+    modalCancel.textContent = '确定';
+    modalCancel.onclick = hideModal;
+    
+    showModal();
+}
+
+// 辅助函数：显示模态框
+function showModal() {
+    const modal = document.getElementById('customModal');
+    modal.style.display = 'block';
+}
+
+// 辅助函数：隐藏模态框
+function hideModal() {
+    const modal = document.getElementById('customModal');
+    modal.style.display = 'none';
 }
 
 // 在文件顶部添这个函数
@@ -191,7 +267,7 @@ function parseAIResponse(aiResponse, originalInput) {
     }
 }
 
-// 修改 parseJsonResponse 函数
+// 改 parseJsonResponse 函数
 function parseJsonResponse(jsonResponse, originalInput) {
     const schedules = [];
     let reminders = [];
@@ -292,7 +368,7 @@ function parseChineseDateTime(dateTimeStr, referenceDate = new Date()) {
         return result;
     }
 
-    // 如果上面的格式不匹配，尝试解析 "YYYY年MM月DD日 HH:mm" 格式
+    // 如果上面的格式不匹配，尝试解析 "YYYY年MM月DD日 HH:mm" 格
     const chineseDateTimeParts = dateTimeStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日\s+(\d{1,2}):(\d{2})/);
     if (chineseDateTimeParts) {
         const [_, year, month, day, hour, minute] = chineseDateTimeParts;
@@ -324,84 +400,12 @@ function calculateEndTime(startTime, duration) {
     return null;
 }
 
-// 修改 showConfirmDialog 函数
-async function showConfirmDialog(schedules) {
-    console.log('Schedules to confirm:', schedules);
-    return new Promise((resolve) => {
-        const modal = document.getElementById('customModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalBody = document.getElementById('modalBody');
-        const confirmBtn = document.getElementById('modalConfirm');
-        const cancelBtn = document.getElementById('modalCancel');
-
-        modalTitle.textContent = '确认添加任务';
-        
-        let bodyContent = '<div style="max-height: 400px; overflow-y: auto;">';
-        schedules.forEach((taskInfo, index) => {
-            bodyContent += `
-                <div style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
-                    <h3>${taskInfo.isReminder ? '提醒事项' : '日程'} ${index + 1}</h3>
-                    <p><strong>标题:</strong> ${taskInfo.title}</p>
-                    <p><strong>开始时间:</strong> ${taskInfo.start ? taskInfo.start.toLocaleString() : '未指定'}</p>
-                    <p><strong>结束时间:</strong> ${taskInfo.end ? taskInfo.end.toLocaleString() : '未指定'}</p>
-                    <p><strong>重复频率:</strong> ${taskInfo.recurrence}</p>
-                    <p><strong>备注:</strong> ${taskInfo.notes}</p>
-                    <label>
-                        <input type="checkbox" class="schedule-checkbox" checked> 添加此${taskInfo.isReminder ? '提醒' : '日程'}
-                    </label>
-                </div>
-            `;
-        });
-        bodyContent += '</div>';
-        
-        modalBody.innerHTML = bodyContent;
-
-        modal.style.display = 'block';
-
-        // 确保确认按钮可见
-        confirmBtn.style.display = 'inline-block';
-        confirmBtn.textContent = '确认';
-
-        confirmBtn.onclick = function() {
-            const selectedSchedules = [];
-            const checkboxes = modalBody.querySelectorAll('.schedule-checkbox');
-            checkboxes.forEach((checkbox, index) => {
-                if (checkbox.checked) {
-                    selectedSchedules.push(schedules[index]);
-                }
-            });
-            modal.style.display = 'none';
-            
-            console.log('Selected schedules:', selectedSchedules);
-            
-            selectedSchedules.forEach(taskInfo => {
-                addEventToCalendar(taskInfo);
-            });
-            
-            resolve(selectedSchedules);
-        };
-
-        cancelBtn.onclick = function() {
-            modal.style.display = 'none';
-            resolve([]);
-        };
-
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-                resolve([]);
-            }
-        };
-    });
-}
-
-// 修 addEventToCalendar 函数
+// 修改 addEventToCalendar 函数
 function addEventToCalendar(taskInfo) {
     console.log('Adding event to calendar:', taskInfo);
 
     if (!taskInfo.start) {
         console.error('无效的开始时间:', taskInfo);
-        updateChat(`添加日程失败：${taskInfo.title} - 无效的开始时间`);
         return;
     }
 
@@ -427,10 +431,9 @@ function addEventToCalendar(taskInfo) {
         console.log('Event added successfully:', addedEvent);
         calendar.render();
         if (isMemoryModeEnabled) saveEvents();
-        updateChat(`已添加日程：${taskInfo.title}`);
     } catch (error) {
         console.error('Failed to add event:', error);
-        updateChat(`添加日程失：${taskInfo.title}`);
+        showErrorModal(`添加日程失败：${taskInfo.title}`);
     }
 }
 
@@ -442,13 +445,6 @@ function getFrequency(recurrence) {
         case '每年': return 'yearly';
         default: return 'daily';
     }
-}
-
-function updateChat(message) {
-    const chatMessage = document.createElement('p');
-    chatMessage.textContent = message;
-    chatBox.appendChild(chatMessage);
-    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 function addEventPrompt(start, end, allDay) {
@@ -937,11 +933,7 @@ function initializeCalendar() {
 
     calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
+        headerToolbar: false, // 禁用默认的头部工具栏
         views: {
             dayGridMonth: { buttonText: '月' },
             timeGridWeek: { buttonText: '周' },
@@ -958,7 +950,6 @@ function initializeCalendar() {
             meridiem: 'short'
         },
         nowIndicator: true,
-        // 添加事件处理器
         eventClick: function(info) {
             showEventDetails(info.event);
         },
@@ -979,19 +970,66 @@ function initializeCalendar() {
             }, 100);
         }
     });
+
+    initializeCustomToolbar();
 }
 
-// 确保在DOM加载完成后初始化日历和其他功能
-document.addEventListener('DOMContentLoaded', function() {
-    initializeCalendar();
-    
-    // 初始化事件监听器
-    const toggleChatBtn = document.getElementById('toggleChatBtn');
-    if (toggleChatBtn) {
-        toggleChatBtn.addEventListener('click', function() {
-            document.querySelector('.container').classList.toggle('chat-hidden');
-        });
-    }
+let toolbarInitialized = false;
 
-    // 其他事件监听器初始化...
+function initializeCustomToolbar() {
+    if (toolbarInitialized) return;
+
+    const prevButton = document.querySelector('.prev-button');
+    const nextButton = document.querySelector('.next-button');
+    const todayButton = document.querySelector('.calendar-today-button');
+    const viewButtons = document.querySelectorAll('.calendar-view-button');
+
+    prevButton.addEventListener('click', () => {
+        calendar.prev();
+        updateCalendarTitle();
+    });
+
+    nextButton.addEventListener('click', () => {
+        calendar.next();
+        updateCalendarTitle();
+    });
+
+    todayButton.addEventListener('click', () => {
+        calendar.today();
+        updateCalendarTitle();
+    });
+
+    viewButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const view = e.target.dataset.view;
+            if (calendar.view.type !== view) {
+                calendar.changeView(view);
+                viewButtons.forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                updateCalendarTitle();
+            }
+        });
+    });
+
+    updateCalendarTitle();
+    toolbarInitialized = true;
+}
+
+function updateCalendarTitle() {
+    const date = calendar.getDate();
+    const formattedDate = new Intl.DateTimeFormat('zh-CN', {
+        year: 'numeric',
+        month: 'long'
+    }).format(date);
+    document.querySelector('.calendar-title').textContent = formattedDate;
+}
+
+// 确保在DOM加载完成后初始化日历
+let isInitialized = false;
+document.addEventListener('DOMContentLoaded', function() {
+    if (!isInitialized) {
+        initializeCalendar();
+        isInitialized = true;
+    }
 });
+

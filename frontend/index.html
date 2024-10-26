@@ -12,16 +12,37 @@
     <div class="container">
         <div class="schedule">
             <div class="schedule-header">
-                <h2>日程安排</h2>
-                <button id="addCourseScheduleBtn" class="add-course-schedule-btn">添加课程表</button>
-                <div class="toggle-switch">
-                    <input type="checkbox" id="memoryModeToggle" checked>
-                    <label for="memoryModeToggle">
-                        <span class="toggle-slider"></span>
-                        <span class="toggle-text">记忆模式</span>
-                    </label>
+                <!-- 日历导航按钮组 -->
+                <div class="calendar-nav-buttons">
+                    <button class="calendar-nav-button prev-button">＜</button>
+                    <button class="calendar-nav-button calendar-today-button">今天</button>
+                    <button class="calendar-nav-button next-button">＞</button>
                 </div>
-                <button id="settingsBtn" class="settings-btn" aria-label="设置"><i class="fas fa-cog" aria-hidden="true"></i></button>
+                
+                <!-- 日期标题 -->
+                <div class="calendar-title">2024年10月</div>
+                
+                <!-- 视图切换按钮组 -->
+                <div class="calendar-view-buttons">
+                    <button class="calendar-view-button active" data-view="dayGridMonth">月</button>
+                    <button class="calendar-view-button" data-view="timeGridWeek">周</button>
+                    <button class="calendar-view-button" data-view="timeGridDay">日</button>
+                </div>
+                
+                <!-- 其他工具按钮 -->
+                <div class="tools-group">
+                    <button id="addCourseScheduleBtn" class="add-course-schedule-btn">添加课程表</button>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="memoryModeToggle" checked>
+                        <label for="memoryModeToggle">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text">记忆模式</span>
+                        </label>
+                    </div>
+                    <button id="settingsBtn" class="settings-btn">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
             </div>
             <div id="calendar"></div>
         </div>

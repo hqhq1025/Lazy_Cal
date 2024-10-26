@@ -322,24 +322,87 @@ h2 {
 
 .schedule-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f5f5f7;
+    border-radius: 10px 10px 0 0;
+    gap: 8px;
 }
 
-.add-course-schedule-btn {
-    padding: 8px 15px;
-    background-color: #0071e3;
-    color: white;
-    border: none;
-    border-radius: 5px;
+/* 日历导航按钮组样式 */
+.fc-button-group {
+    display: flex;
+    gap: 4px;
+}
+
+.fc-button {
+    background-color: #0071e3 !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    color: white !important;
+    font-size: 14px !important;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
 }
 
-.add-course-schedule-btn:hover {
-    background-color: #005bbf;
+.fc-button:hover {
+    background-color: #005bbf !important;
+}
+
+.fc-button.fc-button-active {
+    background-color: #005bbf !important;
+}
+
+/* 今天按钮样式 */
+.fc-today-button {
+    background-color: #6e6e73 !important;
+}
+
+.fc-today-button:hover {
+    background-color: #555555 !important;
+}
+
+/* 标题样式 */
+.fc-toolbar-title {
+    font-size: 1.2em !important;
+    font-weight: 500;
+    margin: 0 8px !important;
+    white-space: nowrap;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 768px) {
+    .schedule-header {
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 6px;
+    }
+
+    .fc-button {
+        padding: 4px 8px !important;
+        font-size: 12px !important;
+    }
+
+    .fc-toolbar-title {
+        font-size: 1em !important;
+    }
+
+    .toggle-switch .toggle-text {
+        display: none;
+    }
+}
+
+/* 超小屏幕优化 */
+@media screen and (max-width: 480px) {
+    .schedule-header {
+        justify-content: center;
+    }
+
+    .fc-toolbar-chunk {
+        margin: 2px 0;
+    }
 }
 
 /* 在文件末尾添加以下样式 */
@@ -1411,3 +1474,101 @@ body, .fc {
     }
 }
 
+/* 顶部导航栏样式 */
+.schedule-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background-color: #f5f5f7;
+    border-radius: 10px 10px 0 0;
+    gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 完全隐藏原始的日历工具栏 */
+.fc .fc-toolbar.fc-header-toolbar {
+    display: none !important;
+}
+
+/* 导航按钮组样式 */
+.calendar-nav-buttons {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.calendar-nav-button {
+    background-color: #0071e3;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.calendar-today-button {
+    background-color: #6e6e73;
+}
+
+/* 日期标题样式 */
+.calendar-title {
+    font-size: 1em;
+    font-weight: 500;
+    margin: 0 8px;
+    flex-shrink: 0;
+}
+
+/* 视图切换按钮组样式 */
+.calendar-view-buttons {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.calendar-view-button {
+    background-color: #0071e3;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.calendar-view-button.active {
+    background-color: #005bbf;
+}
+
+/* 其他工具按钮样式 */
+.tools-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 768px) {
+    .schedule-header {
+        padding: 6px;
+        gap: 4px;
+    }
+
+    .calendar-nav-button,
+    .calendar-view-button {
+        padding: 3px 6px;
+        font-size: 12px;
+    }
+
+    .calendar-title {
+        font-size: 0.9em;
+    }
+
+    .toggle-switch .toggle-text {
+        display: none;
+    }
+}
