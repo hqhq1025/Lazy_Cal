@@ -12,17 +12,14 @@ body {
 .container {
     display: flex;
     height: 100vh;
-    position: relative;
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .schedule {
-    flex: 1;
+    flex: 5; /* 增加日历部分的比例 */
     padding: 20px;
     background-color: #ffffff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
     display: flex;
     flex-direction: column;
 }
@@ -128,8 +125,13 @@ body {
     }
 
     .schedule, .chat {
-        flex: none;
         width: 100%;
+        max-width: none;
+    }
+
+    .chat {
+        border-left: none;
+        border-top: 1px solid #d2d2d7;
     }
 
     #calendar {
@@ -143,13 +145,13 @@ body {
 
 /* 保留原有的其他样式 */
 .chat {
-    width: 25%;  /* 给定一个固定的宽度 */
-    padding: 20px;
+    flex: 1; /* 减少对话栏的比例 */
+    max-width: 300px; /* 设置最大宽度 */
+    padding: 15px; /* 稍微减少内边距 */
     background-color: #f5f5f7;
     display: flex;
     flex-direction: column;
     border-left: 1px solid #d2d2d7;
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .input-samples {
@@ -157,14 +159,14 @@ body {
 }
 
 .input-samples button {
-    margin-right: 5px;
-    margin-bottom: 5px;
-    padding: 5px 10px;
+    margin-right: 3px;
+    margin-bottom: 3px;
+    padding: 4px 6px;
     background-color: #e0e0e0;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 #chatBox {
@@ -178,17 +180,17 @@ body {
 }
 
 #userInput {
-    width: calc(100% - 80px);
-    padding: 10px;
-    margin-right: 10px;
+    width: calc(100% - 60px); /* 调整宽度以适应更窄的对话栏 */
+    padding: 8px;
+    margin-right: 5px;
     border: 1px solid #d2d2d7;
     border-radius: 5px;
     font-size: 14px;
 }
 
 #sendButton {
-    width: 70px;
-    padding: 10px;
+    width: 50px; /* 稍微减小按钮宽度 */
+    padding: 8px;
     background-color: #0071e3;
     color: #ffffff;
     border: none;
@@ -559,7 +561,7 @@ h2 {
     }
 
     .modal-title {
-        font-size: 20px; /* 小屏幕上标题字体大小 */
+        font-size: 20px; /* 小屏幕上标题字大小 */
     }
 
     .modal-content p {
@@ -1572,3 +1574,4 @@ body, .fc {
         display: none;
     }
 }
+
