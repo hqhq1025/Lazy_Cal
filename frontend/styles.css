@@ -1375,3 +1375,39 @@ body, .fc {
 .fc-timegrid-body {
     position: relative;
 }
+
+/* 确保日历头部的按钮在一行中排列 */
+.fc-header-toolbar {
+    display: flex;
+    align-items: center; /* 垂直居中对齐 */
+    justify-content: space-between; /* 在主轴上均匀分布 */
+    flex-wrap: nowrap; /* 防止换行 */
+    padding: 5px; /* 减少内边距 */
+}
+
+/* 调整按钮的样式 */
+.fc-button {
+    margin: 0 5px; /* 按钮之间的间距 */
+    padding: 5px 10px; /* 减小按钮内边距 */
+    font-size: 0.9em; /* 稍微减小字体大小 */
+}
+
+/* 确保标题和日期在同一行 */
+.fc-toolbar-title {
+    margin: 0 10px; /* 标题与按钮之间的间距 */
+    font-size: 1.2em; /* 调整标题大小 */
+}
+
+/* 在小屏幕上进一步优化 */
+@media screen and (max-width: 768px) {
+    .fc-header-toolbar {
+        flex-direction: row; /* 确保在小屏幕上仍然是横向排列 */
+        justify-content: center; /* 居中对齐 */
+    }
+
+    .fc-button {
+        padding: 4px 8px; /* 进一步减小按钮内边距 */
+        font-size: 0.8em; /* 减小字体大小 */
+    }
+}
+
