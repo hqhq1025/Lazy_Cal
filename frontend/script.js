@@ -136,20 +136,21 @@ async function callAI(userInput) {
 async function processInput() {
     const input = userInput.value.trim();
     if (input) {
+        displayMessage(input, 'user'); // 显示用户输入
+        userInput.value = '';
         try {
             const aiResponse = await callAI(input);
+            displayMessage(aiResponse, 'ai'); // 显示AI回复
             const { schedules, reminders } = parseAIResponse(aiResponse, input);
             
             if (schedules.length > 0 || reminders.length > 0) {
                 showAIResponseModal(schedules, reminders);
-            } else {
-                showNoScheduleDetectedModal();
             }
         } catch (error) {
             console.error('处理输入时出错:', error);
+            displayMessage('抱歉,处理您的请求时出现了错误。请稍后再试。', 'ai');
             showErrorModal(error.message);
         }
-        userInput.value = '';
     }
 }
 
@@ -786,6 +787,7 @@ async function handleLogin(e) {
 document.addEventListener('DOMContentLoaded', function() {
     if (!isInitialized) {
         initializeCalendar();
+        initializeChat(); // 新增初始化聊天框的函数调用
         // 其他初始化代码...
         isInitialized = true;
     }
@@ -832,4 +834,67 @@ function updateCalendarTitle() {
         month: 'long'
     }).format(date);
     document.querySelector('.calendar-title').textContent = formattedDate;
+}
+
+// 修改 displayMessage 函数
+function displayMessage(message, sender) {
+    const chatBox = document.getElementById('chatBox');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', sender);
+    
+    if (sender === 'ai') {
+        messageElement.innerHTML = `<strong>AI助手:</strong> ${message}`;
+    } else {
+        messageElement.innerHTML = `<strong>您:</strong> ${message}`;
+    }
+    
+    chatBox.appendChild(messageElement);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function sendMessage() {
+    const userInput = document.getElementById('user-input');
+    const message = userInput.value.trim();
+    if (message) {
+        displayMessage(message, 'user');
+        userInput.value = '';
+        
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message }),
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                // 直接显示AI的回复,不需要解析JSON
+                displayMessage(data.reply, 'ai');
+            } else {
+                throw new Error('服务器响应错误');
+            }
+        } catch (error) {
+            console.error('发送消息时出错:', error);
+            displayMessage('抱歉,发生了错误。请稍后再试。', 'ai');
+        }
+    }
+}
+
+// 新增初始化聊天框的函数
+function initializeChat() {
+    const chatBox = document.getElementById('chatBox');
+    const userInput = document.getElementById('userInput');
+    const sendButton = document.getElementById('sendButton');
+
+    sendButton.addEventListener('click', processInput);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            processInput();
+        }
+    });
+
+    // 显示欢迎消息
+    displayMessage('您好！我是您的AI助手。有什么可以帮助您的吗？', 'ai');
 }
