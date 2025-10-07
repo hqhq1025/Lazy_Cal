@@ -1,101 +1,184 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>日程管理</title>
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css' rel='stylesheet' />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lazy Cal · 智能生活日程助手</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/njN07on6G0UGw9Q0Q5cw5FZ9Yd1Wtr8bJd2w3kQx1C5nUqX3RXA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="schedule">
-            <div class="schedule-header">
-                <!-- 日历导航按钮组 -->
-                <div class="calendar-nav-buttons">
-                    <button class="calendar-nav-button prev-button">＜</button>
-                    <button class="calendar-nav-button calendar-today-button">今天</button>
-                    <button class="calendar-nav-button next-button">＞</button>
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="brand-block">
+                <div class="brand-logo" aria-hidden="true">LC</div>
+                <div class="brand-copy">
+                    <h1>Lazy Cal</h1>
+                    <p>更聪明、更优雅的日程规划体验</p>
                 </div>
-                
-                <!-- 日期标题 -->
-                <div class="calendar-title">2024年10月</div>
-                
-                <!-- 视图切换按钮组 -->
-                <div class="calendar-view-buttons">
-                    <button class="calendar-view-button active" data-view="dayGridMonth">月</button>
-                    <button class="calendar-view-button" data-view="timeGridWeek">周</button>
-                    <button class="calendar-view-button" data-view="timeGridDay">日</button>
+            </div>
+            <div class="header-actions">
+                <button id="addCourseScheduleBtn" class="action-btn">
+                    <i class="fas fa-upload"></i>
+                    <span>导入课程表</span>
+                </button>
+                <div class="memory-toggle" role="switch" aria-checked="true">
+                    <input type="checkbox" id="memoryModeToggle" checked>
+                    <label for="memoryModeToggle">
+                        <span class="toggle-thumb"></span>
+                        <span class="toggle-label">记忆模式</span>
+                    </label>
                 </div>
-                
-                <!-- 其他工具按钮 -->
-                <div class="tools-group">
-                    <button id="addCourseScheduleBtn" class="add-course-schedule-btn">添加课程表</button>
-                    <div class="toggle-switch">
-                        <input type="checkbox" id="memoryModeToggle" checked>
-                        <label for="memoryModeToggle">
-                            <span class="toggle-slider"></span>
-                            <span class="toggle-text">记忆模式</span>
-                        </label>
+                <button id="settingsBtn" class="icon-btn" aria-label="打开设置">
+                    <i class="fas fa-gear"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <section class="calendar-panel">
+                <div class="panel-card">
+                    <div class="calendar-toolbar">
+                        <div class="toolbar-group">
+                            <button class="calendar-nav" data-action="prev" aria-label="上一页">
+                                <i class="fas fa-angle-left"></i>
+                            </button>
+                            <button class="calendar-nav" data-action="today">今天</button>
+                            <button class="calendar-nav" data-action="next" aria-label="下一页">
+                                <i class="fas fa-angle-right"></i>
+                            </button>
+                        </div>
+                        <div class="calendar-title-block">
+                            <h2 id="calendarTitle">日历</h2>
+                            <p id="calendarRange" class="calendar-range"></p>
+                        </div>
+                        <div class="toolbar-group view-switcher" role="tablist">
+                            <button class="view-btn active" data-view="dayGridMonth" role="tab">月</button>
+                            <button class="view-btn" data-view="timeGridWeek" role="tab">周</button>
+                            <button class="view-btn" data-view="timeGridDay" role="tab">日</button>
+                            <button class="view-btn" data-view="listWeek" role="tab">列表</button>
+                        </div>
                     </div>
-                    <button id="settingsBtn" class="settings-btn">
-                        <i class="fas fa-cog"></i>
-                    </button>
+                    <div class="calendar-metrics">
+                        <div class="metric-card">
+                            <span class="metric-label">今日待办</span>
+                            <span id="todayCount" class="metric-value">0</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">本周安排</span>
+                            <span id="weekCount" class="metric-value">0</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">提醒事项</span>
+                            <span id="reminderCount" class="metric-value">0</span>
+                        </div>
+                    </div>
+                    <div id="calendar" class="calendar-surface" aria-label="主日程视图"></div>
                 </div>
-            </div>
-            <div id="calendar"></div>
-        </div>
-        <div class="chat">
-            <h2>AI助手</h2>
-            <div id="chatBox"></div>
-            <div class="input-samples">
-                <button onclick="setInput('明天下午3点开会')">明天下午3点开会</button>
-                <button onclick="setInput('每周一晚上7点健身')">每周一晚上7点健身</button>
-                <button onclick="setInput('下周三上午10点看医生')">下周三上午10点看医生</button>
-                <button onclick="setInput('后天早上9点参加讲座')">后天早上9点参加讲座</button>
-                <button onclick="setInput('每月15号下午2点团队会议')">每月15号下午2点团队会议</button>
-                <button onclick="setInput('下周五晚上8点看电影')">下周五晚上8点看电影</button>
-                <button onclick="setInput('每天早上7点半跑步')">每天早上7点半跑步</button>
-                <button onclick="setInput('下个月1号全天出差')">下个月1号全天出差</button>
-                <button onclick="setInput('提醒我明天带雨伞')">提醒我明天带雨伞</button>
-            </div>
-            <input type="text" id="userInput" placeholder="输入您的日程安排...">
-            <button id="sendButton">发送</button>
-        </div>
+            </section>
+
+            <aside class="assistant-panel">
+                <section class="assistant-card insights-card">
+                    <header>
+                        <div>
+                            <h2>智能洞察</h2>
+                            <p>提前掌握接下来的安排</p>
+                        </div>
+                        <i class="fas fa-lightbulb"></i>
+                    </header>
+                    <ul id="upcomingEventsList" class="insight-list" aria-live="polite"></ul>
+                </section>
+
+                <section class="assistant-card reminders-card">
+                    <header>
+                        <div>
+                            <h2>提醒面板</h2>
+                            <p>AI 识别的待办提醒</p>
+                        </div>
+                        <i class="fas fa-bell"></i>
+                    </header>
+                    <ul id="reminderList" class="reminder-list" aria-live="polite"></ul>
+                </section>
+
+                <section class="assistant-card chat-card">
+                    <header>
+                        <div>
+                            <h2>AI 助手</h2>
+                            <p>理解自然语言，自动生成日程</p>
+                        </div>
+                        <span class="assistant-status"><i class="fas fa-robot"></i> Spark v3.5</span>
+                    </header>
+                    <div id="chatBox" class="chat-box" aria-live="polite"></div>
+                    <div class="quick-prompts" aria-label="快速示例">
+                        <button type="button" data-example="明天下午3点开会">明天下午3点开会</button>
+                        <button type="button" data-example="每周一晚上7点健身">每周一晚上7点健身</button>
+                        <button type="button" data-example="下周三上午10点看医生">下周三上午10点看医生</button>
+                        <button type="button" data-example="每天早上7点半跑步">每天早上7点半跑步</button>
+                        <button type="button" data-example="下个月1号全天出差">下个月1号全天出差</button>
+                        <button type="button" data-example="提醒我明天带雨伞">提醒我明天带雨伞</button>
+                    </div>
+                    <div class="chat-input">
+                        <input id="userInput" type="text" placeholder="告诉我你的计划或提醒..." aria-label="输入日程或提醒">
+                        <button id="sendButton" type="button" class="send-btn">
+                            <span>发送</span>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </section>
+            </aside>
+        </main>
     </div>
 
-    <div id="customModal" class="modal">
+    <div id="customModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="modal-content">
-            <h2 id="modalTitle"></h2>
-            <div id="modalBody"></div>
-            <div class="modal-buttons">
-                <button id="modalConfirm" class="btn-confirm">确认</button>
-                <button id="modalCancel" class="btn-cancel">取消</button>
-            </div>
+            <header class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button type="button" class="icon-btn ghost" data-modal-close aria-label="关闭对话框">
+                    <i class="fas fa-times"></i>
+                </button>
+            </header>
+            <div id="modalBody" class="modal-body"></div>
+            <footer class="modal-footer">
+                <button id="modalCancel" class="ghost-btn">取消</button>
+                <button id="modalConfirm" class="primary-btn">确认</button>
+            </footer>
         </div>
     </div>
 
-    <div id="uploadModal" class="modal">
+    <div id="uploadModal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
         <div class="modal-content">
-            <h2>上传课程表</h2>
-            <label for="xlsFileInput">选择课程表文件：</label>
-            <input type="file" id="xlsFileInput" accept=".xls,.xlsx" aria-label="选择课程表文件" title="选择要上传的课程表文件">
-            <div class="modal-buttons">
-                <button id="uploadFileBtn" class="btn-confirm">上传</button>
-                <button id="cancelUploadBtn" class="btn-cancel">取消</button>
+            <header class="modal-header">
+                <h2>上传课程表</h2>
+                <button type="button" class="icon-btn ghost" data-upload-close aria-label="关闭上传窗口">
+                    <i class="fas fa-times"></i>
+                </button>
+            </header>
+            <div class="modal-body">
+                <p>支持教务导出的 XLS/XLSX 文件，系统将自动解析课程时间与地点。</p>
+                <label class="input-label" for="xlsFileInput">选择课程表文件</label>
+                <input type="file" id="xlsFileInput" accept=".xls,.xlsx">
+                <label class="input-label" for="semesterStartInput">学期开始日期</label>
+                <input type="date" id="semesterStartInput">
+                <p class="input-hint">若不确定开始日期，将默认使用下一个星期一。</p>
             </div>
+            <footer class="modal-footer">
+                <button id="cancelUploadBtn" class="ghost-btn">取消</button>
+                <button id="uploadFileBtn" class="primary-btn">解析课程表</button>
+            </footer>
         </div>
     </div>
 
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js'></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/locales-all.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/rrule/2.6.8/rrule.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@5.10.2/main.global.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-    <script src="aiAssistant.js"></script>
-    <script src="courseSchedule.js"></script>
-    <script src="script.js"></script>
+    <div id="toastContainer" class="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.10/index.global.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rrule/2.7.1/rrule.min.js" integrity="sha512-U2PmWS1KOluxIxOQm65a6R1k5zUq7FhVdSrv7xKJxRHgKqa+A8GqVPbUkudwh/ot+WKZrxFTuXHuK0RduCMsVw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" integrity="sha512-hZrXafAbCT4wA4W2KIiMzFxLpy0X58F3RrgPf63eNbUsVTNff7kwh28ykVfoCEN0z7dxyzKDn5ZA7xL7sRK7sw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" integrity="sha512-1zX8hlGCKIOo2QU3UWcGgDI9JZoGsa1+lZeI7IuAv89xDSHLVQQP4SRrped1IovnHgwlHGawEq+y3OCAXoUp4A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
