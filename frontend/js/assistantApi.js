@@ -1,23 +1,39 @@
-const API_ENDPOINT = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
-const encodedApiKey = 'c2stMjM1NzQ0ODczZDcxNDI1Y2I4YmNiYjA5NGQwZmNmMzI=';
+const encryptedConfig = {
+    APPID: 'N2Y3NGM5ZmQ=',
+    APISecret: 'WW1NeE1tWXpNbVEzTnpZek5qYzRaREppTmpBM1pUYzE=',
+    APIKey: 'YWU3M2YyM2I5ZWFhMWMxNjRmYTJiNTJkOTIzYzVmYzE='
+};
+
+const SPARK_URL = 'wss://spark-api.xf-yun.com/v3.5/chat';
 
 function decodeConfigValue(value) {
-    if (typeof atob === 'function') {
-        return atob(value);
-    }
-
-    if (typeof Buffer !== 'undefined') {
-        return Buffer.from(value, 'base64').toString('utf-8');
-    }
-
-    throw new Error('Base64 解码失败: 环境不支持 atob 或 Buffer');
+    return atob(value);
 }
 
-function getApiKey() {
-    return decodeConfigValue(encodedApiKey);
+function getDecodedConfig() {
+    return {
+        APPID: decodeConfigValue(encryptedConfig.APPID),
+        APISecret: decodeConfigValue(encryptedConfig.APISecret),
+        APIKey: decodeConfigValue(encryptedConfig.APIKey)
+    };
 }
 
-function buildSystemPrompt() {
+function ensureCryptoReady() {
+    return new Promise((resolve, reject) => {
+        if (typeof CryptoJS !== 'undefined') {
+            resolve();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+function getSystemPrompt() {
     const currentDate = new Date();
     const yyyy = currentDate.getFullYear();
     const mm = String(currentDate.getMonth() + 1).padStart(2, '0');
@@ -49,6 +65,78 @@ function buildSystemPrompt() {
         `\n8. 保持输出可被 JSON.parse 直接解析。`;
 }
 
+async function createAuthorizedUrl() {
+    await ensureCryptoReady();
+    const { APIKey, APISecret } = getDecodedConfig();
+    const date = new Date().toUTCString();
+    const signatureOrigin = `host: spark-api.xf-yun.com\ndate: ${date}\nGET /v3.5/chat HTTP/1.1`;
+    const signatureSha = CryptoJS.HmacSHA256(signatureOrigin, APISecret);
+    const signature = CryptoJS.enc.Base64.stringify(signatureSha);
+    const authorizationOrigin = `api_key="${APIKey}", algorithm="hmac-sha256", headers="host date request-line", signature="${signature}"`;
+    const authorization = btoa(authorizationOrigin);
+    return `${SPARK_URL}?authorization=${encodeURIComponent(authorization)}&date=${encodeURIComponent(date)}&host=spark-api.xf-yun.com`;
+}
+
+export async function processUserInput(userInput) {
+    const url = await createAuthorizedUrl();
+    const config = getDecodedConfig();
+    const systemPrompt = getSystemPrompt();
+
+    return new Promise((resolve, reject) => {
+        const ws = new WebSocket(url);
+        let responseText = '';
+
+        ws.onopen = () => {
+            const params = {
+                header: { app_id: config.APPID },
+                parameter: {
+                    chat: {
+                        domain: 'generalv3.5',
+                        temperature: 0.4,
+                        max_tokens: 1200
+                    }
+                },
+                payload: {
+                    message: {
+                        text: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: userInput }
+                        ]
+                    }
+                }
+            };
+
+            ws.send(JSON.stringify(params));
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.header.code !== 0) {
+                reject(new Error(data.header.message));
+                ws.close();
+                return;
+            }
+
+            if (data.payload?.choices?.text?.[0]?.content) {
+                responseText += data.payload.choices.text[0].content;
+            }
+
+            if (data.header.status === 2) {
+                resolve(responseText);
+                ws.close();
+            }
+        };
+
+        ws.onerror = (err) => {
+            reject(err);
+        };
+
+        ws.onclose = () => {
+            // no-op
+        };
+    });
+}
+
 function getNextDayOfWeek(targetWeekday) {
     const now = new Date();
     const currentWeekday = now.getDay();
@@ -58,46 +146,6 @@ function getNextDayOfWeek(targetWeekday) {
     const mm = String(nextDate.getMonth() + 1).padStart(2, '0');
     const dd = String(nextDate.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
-}
-
-function buildRequestPayload(userInput) {
-    const systemPrompt = buildSystemPrompt();
-    return {
-        model: 'qwen-plus',
-        temperature: 0.4,
-        max_tokens: 1200,
-        response_format: { type: 'json_object' },
-        messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userInput }
-        ]
-    };
-}
-
-export async function processUserInput(userInput) {
-    const apiKey = getApiKey();
-    const response = await fetch(API_ENDPOINT, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${apiKey}`
-        },
-        body: JSON.stringify(buildRequestPayload(userInput))
-    });
-
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Qwen API 请求失败: ${response.status} ${errorText}`);
-    }
-
-    const data = await response.json();
-    const content = data?.choices?.[0]?.message?.content;
-
-    if (!content) {
-        throw new Error('Qwen API 返回内容为空');
-    }
-
-    return content;
 }
 
 if (typeof window !== 'undefined') {
