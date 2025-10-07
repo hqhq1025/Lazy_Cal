@@ -1,26 +1,44 @@
 const mongoose = require('mongoose');
+const logger = require('./logger');
+const { mongoUri } = require('../config/environment');
 
-const connectDB = async () => {
-    try {
-        console.log('Attempting to connect to MongoDB...');
-        console.log('MongoDB URI:', process.env.MONGODB_URI.replace(/\/\/.*:.*@/, '//<USERNAME>:<PASSWORD>@')); // 隐藏敏感信息
-        await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            authSource: 'admin', // 添加这行
-            retryWrites: true,
-            w: 'majority'
-        });
-        console.log('MongoDB connected successfully');
-    } catch (error) {
-        console.error('MongoDB connection error:', error);
-        if (error.name === 'MongoServerError' && error.code === 18) {
-            console.error('Authentication failed. Please check your username and password.');
-        } else if (error.name === 'MongoServerError' && error.code === 13) {
-            console.error('Unauthorized access. Please check your database user permissions.');
-        }
-        process.exit(1);
-    }
-};
+mongoose.set('strictQuery', false);
+
+let connectionPromise = null;
+
+function maskMongoUri(uri) {
+  if (!uri) {
+    return '';
+  }
+  return uri.replace(/:\/\/(.*?):(.*?)@/, '://<username>:<password>@');
+}
+
+async function connectDB() {
+  if (connectionPromise) {
+    return connectionPromise;
+  }
+
+  if (!mongoUri) {
+    throw new Error('未配置 MongoDB 连接字符串，请设置 MONGODB_URI 环境变量');
+  }
+
+  logger.info(`Connecting to MongoDB ${maskMongoUri(mongoUri)}`);
+
+  connectionPromise = mongoose
+    .connect(mongoUri, {
+      serverSelectionTimeoutMS: 5000
+    })
+    .then((connection) => {
+      logger.info('MongoDB connected successfully');
+      return connection;
+    })
+    .catch((error) => {
+      connectionPromise = null;
+      logger.error('MongoDB connection failed', error);
+      throw error;
+    });
+
+  return connectionPromise;
+}
 
 module.exports = connectDB;

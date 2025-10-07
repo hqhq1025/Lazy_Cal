@@ -1,1577 +1,841 @@
-/* 导入 San Francisco 字体 */
-@import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+:root {
+    --bg-gradient: radial-gradient(circle at top, #f8fbff 0%, #f1f5ff 45%, #f5f5f7 100%);
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --card-border: rgba(102, 118, 168, 0.08);
+    --primary: #3b82f6;
+    --primary-strong: #1d4ed8;
+    --primary-soft: rgba(59, 130, 246, 0.1);
+    --accent: #6366f1;
+    --accent-soft: rgba(99, 102, 241, 0.12);
+    --danger: #ef4444;
+    --success: #10b981;
+    --text-strong: #0f172a;
+    --text-medium: #475569;
+    --text-light: #94a3b8;
+    --shadow-sm: 0 10px 30px rgba(15, 23, 42, 0.08);
+    --shadow-lg: 0 25px 45px rgba(15, 23, 42, 0.12);
+    --radius-lg: 24px;
+    --radius-md: 18px;
+    --radius-sm: 12px;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
 
 body {
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-    background-color: #f5f5f7;
-    color: #1d1d1f;
     margin: 0;
-    padding: 0;
+    min-height: 100vh;
+    background: var(--bg-gradient);
+    color: var(--text-strong);
+    line-height: 1.6;
 }
 
-.container {
-    display: flex;
-    height: 100vh;
-}
-
-.schedule {
-    flex: 5; /* 增加日历部分的比例 */
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+.app-shell {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 32px clamp(20px, 5vw, 48px) 48px;
     display: flex;
     flex-direction: column;
+    gap: 28px;
 }
 
-#calendar {
-    flex: 1;
-    min-height: 600px; /* 设置最小高度 */
-    width: 100%;
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px clamp(24px, 5vw, 32px);
+    background: var(--card-bg);
+    backdrop-filter: blur(18px);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--card-border);
 }
 
-/* FullCalendar 样式覆盖 */
-.fc {
-    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+.brand-block {
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
-.fc .fc-toolbar-title {
-    font-size: 24px;
+.brand-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.3);
+}
+
+.brand-copy h1 {
+    margin: 0;
+    font-size: clamp(24px, 2.4vw, 32px);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.brand-copy p {
+    margin: 4px 0 0;
+    color: var(--text-medium);
+    font-size: 14px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border: none;
+    color: #fff;
+    border-radius: 999px;
+    padding: 12px 20px;
+    font-size: 14px;
     font-weight: 600;
-    color: #1d1d1f;
+    cursor: pointer;
+    box-shadow: 0 15px 30px rgba(59, 130, 246, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.fc .fc-button-primary {
-    background-color: #0071e3;
-    border-color: #0071e3;
-    border-radius: 6px;
-    transition: background-color 0.3s ease;
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 34px rgba(59, 130, 246, 0.3);
 }
 
-.fc .fc-button-primary:not(:disabled):active,
-.fc .fc-button-primary:not(:disabled).fc-button-active,
-.fc .fc-button-primary:hover {
-    background-color: #005bbf;
-    border-color: #005bbf;
+.icon-btn {
+    border: none;
+    background: var(--accent-soft);
+    color: var(--accent);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
 }
 
-.fc-daygrid-day-frame {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    overflow: hidden;
+.icon-btn:hover {
+    transform: translateY(-2px);
 }
 
-.fc-daygrid-day-frame:hover {
-    transform: scale(1.02);
-    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15);
-    background-color: rgba(255, 255, 255, 1);
+.icon-btn.ghost {
+    background: transparent;
+    color: var(--text-light);
 }
 
-.fc-daygrid-day-number,
-.fc-col-header-cell-cushion {
-    color: #1d1d1f;
-    text-decoration: none;
-    font-weight: 500;
+.memory-toggle {
+    position: relative;
 }
 
-.fc-day-today {
-    background-color: rgba(232, 240, 254, 0.9) !important;
+.memory-toggle input {
+    position: absolute;
+    opacity: 0;
 }
 
-.fc-day-today .fc-daygrid-day-frame:hover {
-    background-color: rgba(232, 240, 254, 1) !important;
+.memory-toggle label {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s ease;
 }
 
-.fc-daygrid-event {
-    background-color: rgba(52, 199, 89, 0.9);
-    border-color: rgba(52, 199, 89, 0.9);
-    color: #ffffff;
-    border-radius: 6px;
-    padding: 2px 4px;
-    font-size: 12px;
-    transition: all 0.3s ease;
-    margin-bottom: 2px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+.memory-toggle .toggle-thumb {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(99, 102, 241, 0.35);
+    transition: background 0.25s ease;
 }
 
-.fc-daygrid-event:hover {
-    background-color: rgba(52, 199, 89, 1);
-    border-color: rgba(52, 199, 89, 1);
-    transform: translateY(-1px);
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
-}
-
-/* 假日和特殊事件的视觉指示器 */
-.fc-day-holiday {
-    background-color: #ffefef;
-}
-
-.fc-day-holiday::before {
-    content: '🎉';
+.memory-toggle .toggle-thumb::after {
+    content: '';
     position: absolute;
     top: 2px;
-    right: 2px;
-    font-size: 10px;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
-
-    .schedule, .chat {
-        width: 100%;
-        max-width: none;
-    }
-
-    .chat {
-        border-left: none;
-        border-top: 1px solid #d2d2d7;
-    }
-
-    #calendar {
-        height: 500px;
-    }
-
-    .fc .fc-toolbar-title {
-        font-size: 20px;
-    }
-}
-
-/* 保留原有的其他样式 */
-.chat {
-    flex: 1; /* 减少对话栏的比例 */
-    max-width: 300px; /* 设置最大宽度 */
-    padding: 15px; /* 稍微减少内边距 */
-    background-color: #f5f5f7;
-    display: flex;
-    flex-direction: column;
-    border-left: 1px solid #d2d2d7;
-}
-
-.input-samples {
-    margin-bottom: 15px;
-}
-
-.input-samples button {
-    margin-right: 3px;
-    margin-bottom: 3px;
-    padding: 4px 6px;
-    background-color: #e0e0e0;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 10px;
-}
-
-#chatBox {
-    flex-grow: 1;
-    overflow-y: auto;
-    margin-bottom: 15px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-}
-
-#userInput {
-    width: calc(100% - 60px); /* 调整宽度以适应更窄的对话栏 */
-    padding: 8px;
-    margin-right: 5px;
-    border: 1px solid #d2d2d7;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-#sendButton {
-    width: 50px; /* 稍微减小按钮宽度 */
-    padding: 8px;
-    background-color: #0071e3;
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-weight: 500;
-    color: #1d1d1f;
-}
-
-/* 在文件末尾添加 */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-}
-
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
-}
-
-.modal-body {
-    margin-bottom: 20px;
-}
-
-.modal-buttons {
-    text-align: right;
-}
-
-.modal-buttons button {
-    margin-left: 10px;
-}
-
-.btn-confirm, .btn-cancel {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-.btn-confirm {
-    background-color: #0071e3;
-    color: white;
-    margin-left: 10px;
-}
-
-.btn-cancel {
-    background-color: #e0e0e0;
-    color: #333;
-}
-
-.btn-confirm:hover {
-    background-color: #005bbf;
-}
-
-.btn-cancel:hover {
-    background-color: #d0d0d0;
-}
-
-/* 新添加的样式 */
-.original-input-container {
-    margin-top: 10px;
-}
-
-.toggle-btn {
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    padding: 8px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-.toggle-btn:hover {
-    background-color: #e0e0e0;
-}
-
-.toggle-btn.active {
-    background-color: #0071e3;
-    color: white;
-    border-color: #0071e3;
-}
-
-.original-input-text {
-    margin-top: 5px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-}
-
-/* 添加滚动条样式 */
-.original-input-text::-webkit-scrollbar {
-    width: 8px;
-}
-
-.original-input-text::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.original-input-text::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.original-input-text::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-/* 在文件中添加或修改以下样式 */
-
-.schedule-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    background-color: #f5f5f7;
-    border-radius: 10px 10px 0 0;
-    gap: 8px;
-}
-
-/* 日历导航按钮组样式 */
-.fc-button-group {
-    display: flex;
-    gap: 4px;
-}
-
-.fc-button {
-    background-color: #0071e3 !important;
-    border: none !important;
-    padding: 6px 12px !important;
-    border-radius: 6px !important;
-    color: white !important;
-    font-size: 14px !important;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.fc-button:hover {
-    background-color: #005bbf !important;
-}
-
-.fc-button.fc-button-active {
-    background-color: #005bbf !important;
-}
-
-/* 今天按钮样式 */
-.fc-today-button {
-    background-color: #6e6e73 !important;
-}
-
-.fc-today-button:hover {
-    background-color: #555555 !important;
-}
-
-/* 标题样式 */
-.fc-toolbar-title {
-    font-size: 1.2em !important;
-    font-weight: 500;
-    margin: 0 8px !important;
-    white-space: nowrap;
-}
-
-/* 响应式调整 */
-@media screen and (max-width: 768px) {
-    .schedule-header {
-        flex-wrap: wrap;
-        gap: 6px;
-        padding: 6px;
-    }
-
-    .fc-button {
-        padding: 4px 8px !important;
-        font-size: 12px !important;
-    }
-
-    .fc-toolbar-title {
-        font-size: 1em !important;
-    }
-
-    .toggle-switch .toggle-text {
-        display: none;
-    }
-}
-
-/* 超小屏幕优化 */
-@media screen and (max-width: 480px) {
-    .schedule-header {
-        justify-content: center;
-    }
-
-    .fc-toolbar-chunk {
-        margin: 2px 0;
-    }
-}
-
-/* 在文件末尾添加以下样式 */
-
-#uploadModal .modal-content {
-    max-width: 400px;
-}
-
-#xlsFileInput {
-    margin: 20px 0;
-    width: 100%;
-}
-
-#uploadModal .modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-}
-
-#uploadModal .modal-buttons button {
-    margin-left: 10px;
-}
-
-.toggle-switch {
-    display: inline-block;
-    vertical-align: middle;
-    margin-left: 10px;
-}
-
-.toggle-switch input[type="checkbox"] {
-    display: none;
-}
-
-.toggle-switch label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    padding: 5px;
-    transition: background-color 0.3s;
-}
-
-.toggle-slider {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 20px;
-    background-color: #ccc;
-    border-radius: 20px;
-    transition: 0.3s;
-}
-
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
     left: 2px;
-    bottom: 2px;
-    background-color: white;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    transition: 0.3s;
+    background: #fff;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
+    transition: transform 0.25s ease;
 }
 
-.toggle-text {
-    margin-left: 10px;
-    font-size: 14px;
+.memory-toggle input:checked + label .toggle-thumb {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
 }
 
-.toggle-switch input[type="checkbox"]:checked + label .toggle-slider {
-    background-color: #0071e3;
-}
-
-.toggle-switch input[type="checkbox"]:checked + label .toggle-slider:before {
+.memory-toggle input:checked + label .toggle-thumb::after {
     transform: translateX(20px);
 }
 
-/* 日程条详情模态框样式 */
+.memory-toggle .toggle-label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.app-main {
+    display: grid;
+    grid-template-columns: 2fr minmax(320px, 420px);
+    gap: 24px;
+    align-items: stretch;
+}
+
+.panel-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(18px);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--card-border);
+    padding: clamp(24px, 3vw, 32px);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-height: 720px;
+}
+
+.calendar-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.toolbar-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(15, 23, 42, 0.04);
+    padding: 6px;
+    border-radius: 999px;
+}
+
+.calendar-nav {
+    border: none;
+    background: transparent;
+    color: var(--text-medium);
+    min-width: 44px;
+    height: 36px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.calendar-nav:hover,
+.calendar-nav:focus {
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--primary);
+}
+
+.calendar-title-block h2 {
+    margin: 0;
+    font-size: clamp(22px, 2vw, 28px);
+}
+
+.calendar-range {
+    margin: 4px 0 0;
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+.view-switcher {
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.view-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-medium);
+    padding: 8px 14px;
+    border-radius: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.view-btn.active {
+    background: #fff;
+    color: var(--primary);
+    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.15);
+}
+
+.calendar-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.metric-card {
+    background: rgba(59, 130, 246, 0.08);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.metric-label {
+    color: var(--text-medium);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.metric-value {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.calendar-surface {
+    flex: 1;
+    min-height: 520px;
+}
+
+.assistant-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.assistant-card {
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--card-border);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.assistant-card header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.assistant-status {
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--accent);
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.assistant-card header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.assistant-card header p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--text-medium);
+}
+
+.assistant-card header i {
+    color: var(--accent);
+    font-size: 20px;
+}
+
+.insight-list,
+.reminder-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.insight-item,
+.reminder-item {
+    background: rgba(248, 250, 255, 0.8);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: 1px solid rgba(59, 130, 246, 0.08);
+}
+
+.insight-item strong {
+    font-size: 15px;
+}
+
+.insight-item span {
+    color: var(--text-medium);
+    font-size: 13px;
+}
+
+.reminder-item {
+    position: relative;
+    padding-left: 40px;
+}
+
+.reminder-item::before {
+    content: '\f0a2';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 16px;
+    top: 14px;
+    color: var(--accent);
+}
+
+.chat-card {
+    flex: 1;
+}
+
+.chat-box {
+    background: rgba(15, 23, 42, 0.04);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    max-height: 320px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.message {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    max-width: 85%;
+    font-size: 14px;
+    line-height: 1.6;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+}
+
+.message.user {
+    margin-left: auto;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+}
+
+.message.ai {
+    margin-right: auto;
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.05);
+}
+
+.quick-prompts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.quick-prompts button {
+    border: none;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--primary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.quick-prompts button:hover {
+    transform: translateY(-1px);
+}
+
+.chat-input {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.chat-input input {
+    flex: 1;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 15px;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chat-input input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.send-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 12px 18px;
+    font-weight: 600;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    box-shadow: 0 15px 30px rgba(59, 130, 246, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.send-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 20px 35px rgba(59, 130, 246, 0.3);
+}
+
+/* FullCalendar overrides */
+.fc {
+    font-family: inherit;
+}
+
+.fc .fc-view-harness {
+    border-radius: var(--radius-md);
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05);
+    background: #fff;
+}
+
+.fc .fc-daygrid-day-frame,
+.fc .fc-timegrid-slot {
+    transition: background 0.2s ease;
+}
+
+.fc .fc-daygrid-day:hover .fc-daygrid-day-frame,
+.fc .fc-timegrid-slot:hover {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.fc .fc-day-today {
+    background: rgba(99, 102, 241, 0.08) !important;
+}
+
+.fc .fc-daygrid-event,
+.fc .fc-timegrid-event {
+    border-radius: 10px;
+    border: none;
+    padding: 4px 6px;
+    font-size: 13px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    box-shadow: 0 10px 18px rgba(59, 130, 246, 0.25);
+}
+
+.fc .fc-list-event-title {
+    font-weight: 600;
+}
+
+/* Modal */
 .modal {
-    display: none;
     position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+    inset: 0;
+    background: rgba(15, 23, 42, 0.32);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 40;
+}
+
+.modal[aria-hidden="false"] {
+    display: flex;
 }
 
 .modal-content {
-    background-color: #ffffff; /* 白色背景 */
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 10px; /* 圆角 */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* 柔和的阴影 */
-    width: 80%;
-    max-width: 500px; /* 最大宽度 */
-    max-height: 80vh; /* 最大高度 */
-    overflow-y: auto; /* 允许滚动 */
+    width: min(540px, 95vw);
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
 }
 
-.modal-title {
-    font-size: 24px; /* 标题字体大小 */
-    font-weight: 600; /* 加粗 */
-    color: #1d1d1f; /* 深色字体 */
-    margin-bottom: 15px; /* 下边距 */
+.modal-header,
+.modal-footer {
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
 .modal-body {
-    margin-bottom: 20px;
-}
-
-.modal-content p {
-    margin: 10px 0; /* 段落间距 */
-    font-size: 16px; /* 字体大小 */
-    color: #333; /* 深色字体 */
-}
-
-.original-input-container {
-    margin-top: 15px; /* 上边距 */
-}
-
-.toggle-btn {
-    background-color: #0071e3; /* 按钮背景颜色 */
-    color: white; /* 字体颜色 */
-    border: none;
-    border-radius: 5px; /* 圆角 */
-    padding: 10px 15px; /* 内边距 */
-    cursor: pointer;
-    transition: background-color 0.3s; /* 背景颜色过渡 */
-}
-
-.toggle-btn:hover {
-    background-color: #005bbf; /* 悬停时的背景颜色 */
-}
-
-.delete-btn {
-    background-color: #ff4d4f; /* 删除按钮背景颜色 */
-    color: white; /* 字体颜色 */
-    border: none;
-    border-radius: 5px; /* 圆角 */
-    padding: 10px 15px; /* 内边距 */
-    cursor: pointer;
-    transition: background-color 0.3s; /* 背景颜色过渡 */
-}
-
-.delete-btn:hover {
-    background-color: #d12e2e; /* 悬停时的背景颜色 */
-}
-
-/* 响应式设计 */
-@media (max-width: 600px) {
-    .modal-content {
-        width: 90%; /* 在小屏幕上调整宽度 */
-    }
-
-    .modal-title {
-        font-size: 20px; /* 小屏幕上标题字大小 */
-    }
-
-    .modal-content p {
-        font-size: 14px; /* 小屏幕上段落字体大小 */
-    }
-}
-
-.modal-content {
-    background-color: #ffffff;
-    margin: 10% auto;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    width: 90%;
-    max-width: 500px;
-    max-height: 80vh;
+    padding: 0 28px 24px;
     overflow-y: auto;
+    max-height: 60vh;
 }
 
-.modal-title {
-    font-size: 24px;
+.modal-header h2 {
+    margin: 0;
+}
+
+.primary-btn,
+.ghost-btn {
+    padding: 10px 18px;
+    border-radius: 999px;
     font-weight: 600;
-    color: #333;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.event-details p {
-    margin: 10px 0;
-    font-size: 16px;
-    color: #555;
-}
-
-.event-details i {
-    margin-right: 10px;
-    color: #0071e3;
-}
-
-.original-input-container {
-    margin-top: 20px;
-}
-
-.toggle-btn, .delete-btn {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-    margin-top: 10px;
-}
-
-.toggle-btn {
-    background-color: #f0f0f0;
-    color: #333;
-}
-
-.toggle-btn:hover {
-    background-color: #e0e0e0;
-}
-
-.delete-btn {
-    background-color: #ff4d4f;
-    color: white;
-}
-
-.delete-btn:hover {
-    background-color: #ff7875;
-}
-
-.original-input-text {
-    margin-top: 10px;
-    padding: 10px;
-    border: 1px solid #eee;
-    background-color: #f9f9f9;
-    border-radius: 5px;
-    font-size: 14px;
-    color: #666;
-}
-
-#modalCancel {
-    background-color: #f0f0f0;
-    color: #333;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
 }
 
-#modalCancel:hover {
-    background-color: #e0e0e0;
+.primary-btn {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
 }
 
-.settings-btn {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 20px;
-    color: #0071e3;
-    padding: 5px;
-    margin-left: 10px;
-    transition: color 0.3s ease;
+.ghost-btn {
+    background: rgba(15, 23, 42, 0.05);
+    color: var(--text-medium);
 }
 
-.settings-btn:hover {
-    color: #005bbf;
-}
-
-/* 设置页面样式 */
-.settings-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.login-form {
-    background-color: #f5f5f7;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
+.modal-body .input-label {
     display: block;
-    margin-bottom: 5px;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #d2d2d7;
-    border-radius: 5px;
-}
-
-.btn-login, .btn-back {
-    background-color: #0071e3;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-}
-
-.btn-login:hover, .btn-back:hover {
-    background-color: #005bbf;
-}
-
-.btn-back {
-    background-color: #6e6e73;
-}
-
-.btn-back:hover {
-    background-color: #555;
-}
-
-#loginMessage {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-/* 在文件末尾添加以下样式 */
-
-.auth-form {
-    background-color: #f5f5f7;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.auth-form h2 {
-    margin-top: 0;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #d2d2d7;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-.btn-login, .btn-register, .btn-logout {
-    background-color: #0071e3;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-}
-
-.btn-login:hover, .btn-register:hover, .btn-logout:hover {
-    background-color: #005bbf;
-}
-
-.btn-logout {
-    background-color: #ff3b30;
-}
-
-.btn-logout:hover {
-    background-color: #d63a2f;
-}
-
-#message {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-#userInfo {
-    background-color: #f5f5f7;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-/* 更新字体设置 */
-body, .fc {
-    font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Helvetica Neue', Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-    color: #1d1d1f;
-}
-
-/* 更新日历标题字体 */
-.fc .fc-toolbar-title {
-    font-size: 24px;
+    margin: 12px 0 6px;
     font-weight: 600;
-    color: #1d1d1f;
+    color: var(--text-medium);
 }
 
-/* 更新日历单元格字体 */
-.fc-daygrid-day-number,
-.fc-col-header-cell-cushion {
+.modal-body input[type="file"],
+.modal-body input[type="date"],
+.modal-body input[type="text"],
+.modal-body textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(148, 163, 184, 0.35);
     font-size: 14px;
-    font-weight: 400;
 }
 
-/* 更新事件字体 */
-.fc-event-title,
-.fc-event-time {
-    font-size: 12px;
-    font-weight: 400;
+.modal-body textarea {
+    min-height: 110px;
+    resize: vertical;
 }
 
-/* 响应式字体大小 */
-@media (max-width: 768px) {
-    body, .fc {
-        font-size: 14px;
-    }
-
-    .fc .fc-toolbar-title {
-        font-size: 20px;
-    }
-
-    .fc-daygrid-day-number,
-    .fc-col-header-cell-cushion {
-        font-size: 12px;
-    }
-
-    .fc-event-title,
-    .fc-event-time {
-        font-size: 11px;
-    }
+.modal-body .input-hint {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-light);
 }
 
-@media (max-width: 480px) {
-    body, .fc {
-        font-size: 13px;
-    }
-
-    .fc .fc-toolbar-title {
-        font-size: 18px;
-    }
-
-    .fc-daygrid-day-number,
-    .fc-col-header-cell-cushion {
-        font-size: 11px;
-    }
-
-    .fc-event-title,
-    .fc-event-time {
-        font-size: 10px;
-    }
+.modal-footer {
+    border-top: 1px solid rgba(148, 163, 184, 0.12);
 }
 
-/* 更新日历网格的背景颜色 */
-.fc .fc-view-harness {
-    background-color: rgba(240, 240, 245, 0.8);
+.event-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
 
-/* 更新日期单元格的样式 */
-.fc-daygrid-day-frame {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    overflow: hidden;
+.event-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px 16px;
 }
 
-.fc-daygrid-day-frame:hover {
-    transform: scale(1.02);
-    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15);
-    background-color: rgba(255, 255, 255, 1);
+.event-detail-grid div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--text-medium);
 }
 
-/* 更新日历头部单元格样式 */
-.fc-col-header-cell {
-    background-color: rgba(240, 240, 245, 0.8);
-    border-radius: 10px 10px 0 0;
-    border: 1px solid #e0e0e0;
-    border-bottom: none;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
+.event-detail-grid strong {
+    color: var(--text-strong);
 }
 
-/* 更新今天的样式 */
-.fc-day-today .fc-daygrid-day-frame {
-    background-color: rgba(232, 240, 254, 0.9) !important;
-    border-color: #a0c2ff;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.12);
+.event-detail-notes,
+.event-detail-original {
+    background: rgba(248, 250, 255, 0.7);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 14px;
+    color: var(--text-medium);
 }
 
-.fc-day-today .fc-daygrid-day-frame:hover {
-    background-color: rgba(232, 240, 254, 1) !important;
-    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.18);
+.event-detail-notes strong,
+.event-detail-original strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-strong);
 }
 
-/* 更新事件样式 */
-.fc-daygrid-event {
-    background-color: rgba(52, 199, 89, 0.9);
-    border-color: rgba(52, 199, 89, 0.9);
-    color: #ffffff;
-    border-radius: 6px;
-    padding: 2px 4px;
-    font-size: 12px;
-    transition: all 0.3s ease;
-    margin-bottom: 2px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+.ai-review .review-section {
+    margin-bottom: 18px;
 }
 
-.fc-daygrid-event:hover {
-    background-color: rgba(52, 199, 89, 1);
-    border-color: rgba(52, 199, 89, 1);
-    transform: translateY(-1px);
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15);
+.ai-review .review-section h3 {
+    margin: 0 0 12px;
+    font-size: 16px;
 }
 
-/* 调整日期数字的位置 */
-.fc-daygrid-day-top {
-    padding: 5px;
+.ai-review .review-section ol,
+.ai-review .review-section ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--text-medium);
 }
 
-.fc-daygrid-day-number {
-    font-weight: 500;
-    color: #333;
-}
-
-/* 确保日历视图的边缘也是圆角的 */
-.fc-view-harness {
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-/* 在文件末尾添加以下样式 */
-
-/* 基础响应式设计 */
-@media screen and (max-width: 768px) {
-    .container {
-        flex-direction: column;
-    }
-
-    .schedule, .chat {
-        width: 100%;
-    }
-
-    #calendar {
-        height: 500px;
-    }
-
-    .fc .fc-toolbar {
-        flex-direction: column;
-    }
-
-    .fc .fc-toolbar-title {
-        font-size: 1.2em;
-        margin-bottom: 10px;
-    }
-
-    .fc .fc-button {
-        font-size: 0.9em;
-        padding: 0.3em 0.6em;
-    }
-
-    .fc-daygrid-day-number,
-    .fc-col-header-cell-cushion {
-        font-size: 0.9em;
-    }
-
-    .fc-event-title,
-    .fc-event-time {
-        font-size: 0.8em;
-    }
-}
-
-/* 小屏幕设备 */
-@media screen and (max-width: 480px) {
-    .fc .fc-toolbar-title {
-        font-size: 1em;
-    }
-
-    .fc .fc-button {
-        font-size: 0.8em;
-        padding: 0.2em 0.4em;
-    }
-
-    .fc-daygrid-day-number,
-    .fc-col-header-cell-cushion {
-        font-size: 0.8em;
-    }
-
-    .fc-event-title,
-    .fc-event-time {
-        font-size: 0.7em;
-    }
-
-    .fc-daygrid-day-frame {
-        padding: 2px;
-    }
-}
-
-/* 确保日历网格在小屏幕上也能正确显示 */
-@media screen and (max-width: 600px) {
-    .fc-daygrid-body {
-        width: 100% !important;
-    }
-
-    .fc-daygrid-day-frame {
-        min-height: 5em;
-    }
-
-    .fc .fc-daygrid-day-top {
-        flex-direction: row;
-        justify-content: center;
-    }
-}
-
-/* 调整日历头部在小屏幕上的布局 */
-@media screen and (max-width: 768px) {
-    .fc .fc-toolbar.fc-header-toolbar {
-        margin-bottom: 0.5em;
-    }
-
-    .fc-header-toolbar .fc-toolbar-chunk {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 0.5em;
-    }
-
-    .fc-header-toolbar .fc-toolbar-chunk:last-child {
-        margin-bottom: 0;
-    }
-}
-
-/* 优化触摸设备上的交互 */
-@media (hover: none) and (pointer: coarse) {
-    .fc-event-main {
-        padding: 0.5em;
-    }
-
-    .fc-daygrid-event {
-        margin-top: 0.2em;
-    }
-}
-
-/* 优化顶部布局 */
-.fc .fc-toolbar.fc-header-toolbar {
-    flex-wrap: wrap;
-    justify-content: space-between;
-    padding: 10px;
-}
-
-.fc-toolbar-chunk {
+.ai-review .review-section li {
     margin-bottom: 10px;
 }
 
-/* 移动端优化 */
-@media screen and (max-width: 768px) {
-    /* 调整顶部布局 */
-    .fc .fc-toolbar.fc-header-toolbar {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .fc-toolbar-chunk {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        margin-bottom: 10px;
-    }
-
-    /* 调整标题大小 */
-    .fc .fc-toolbar-title {
-        font-size: 1.2em;
-    }
-
-    /* 调整按钮大小和间距 */
-    .fc-button-group {
-        display: flex;
-        justify-content: center;
-    }
-
-    .fc-button {
-        padding: 6px 12px;
-        font-size: 0.9em;
-    }
-
-    /* 调整日历网格 */
-    .fc-daygrid-body {
-        width: 100% !important;
-    }
-
-    .fc-daygrid-day-frame {
-        min-height: 4em;
-        padding: 2px;
-    }
-
-    /* 调整事件显示 */
-    .fc-daygrid-event {
-        font-size: 0.8em;
-        padding: 1px 2px;
-    }
-
-    /* 优化触摸体验 */
-    .fc-daygrid-day-top {
-        padding: 8px 4px;
-    }
-
-    .fc-daygrid-day-number {
-        font-size: 0.9em;
-    }
-}
-
-/* 更小屏幕的额外优化 */
-@media screen and (max-width: 480px) {
-    .fc .fc-toolbar-title {
-        font-size: 1em;
-    }
-
-    .fc-button {
-        padding: 4px 8px;
-        font-size: 0.8em;
-    }
-
-    .fc-daygrid-day-frame {
-        min-height: 3em;
-    }
-}
-
-/* 添加以下样式到文件末尾 */
-
-.toggle-chat-btn {
-    position: absolute;
-    right: 25%;  /* 初始位置在聊天框左侧 */
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: #0071e3;
-    color: white;
-    border: none;
-    padding: 10px 5px;
-    cursor: pointer;
-    z-index: 10;
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-.toggle-chat-btn i {
-    transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-.chat {
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-.chat-hidden .chat {
-    transform: translateX(100%);
-    width: 0;  /* 当隐时，宽度变为0 */
-    padding: 0;  /* 当隐藏时，内边距变为0 */
-    overflow: hidden;  /* 隐藏溢出内容 */
-}
-
-.chat-hidden .toggle-chat-btn {
-    right: 0;  /* 当聊天隐藏时，按钮移到最右边 */
-}
-
-.chat-hidden .toggle-chat-btn i {
-    transform: rotate(180deg);
-}
-
-/* 调整日历容器的宽度 */
-.schedule {
-    transition: width 0.3s ease;
-    width: 75%;
-}
-
-.chat-hidden .schedule {
-    flex: 1;  /* 当聊天隐藏时，日历占据所有可用空间 */
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-/* 添加以下样式到文件末尾 */
-
-.settings-panel {
-    position: fixed;
-    top: 0;
-    right: -50vw;
-    width: 50vw;
-    height: 100vh;
-    background-color: #fff;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease-in-out;
-    z-index: 1000;
+.course-preview-list {
+    max-height: 260px;
     overflow-y: auto;
+    background: rgba(248, 250, 255, 0.6);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
 }
 
-.settings-panel.show {
-    transform: translateX(-50vw);
-}
-
-.settings-content {
-    padding: 20px;
-}
-
-.settings-body {
-    margin-bottom: 20px;
-}
-
-.setting-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.btn-cancel {
-    background-color: #e0e0e0;
-    color: #333;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-
-.btn-cancel:hover {
-    background-color: #d0d0d0;
-}
-
-/* 响应式设计 */
-@media screen and (max-width: 768px) {
-    .settings-panel {
-        width: 80vw;
-        right: -80vw;
-    }
-
-    .settings-panel.show {
-        transform: translateX(-80vw);
-    }
-}
-
-/* 修改 .schedule 样式 */
-.schedule {
-    flex: 1;
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+.course-preview-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     display: flex;
     flex-direction: column;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--text-medium);
 }
 
-/* 修改 #calendar 样式 */
-#calendar {
-    flex: 1;
-    min-height: 600px; /* 设置最小高度 */
-    width: 100%;
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+.course-preview-list li strong {
+    display: block;
+    color: var(--text-strong);
+    margin-bottom: 4px;
 }
 
-/* 修改 .chat-hidden .schedule 样式 */
-.chat-hidden .schedule {
-    flex: 1;
-    max-width: 1200px; /* 设置最大宽度 */
-    margin: 0 auto; /* 居中显示 */
+.toast.hide {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* 添加媒体查询以适应不同屏幕大小 */
-@media screen and (max-width: 1200px) {
-    .chat-hidden .schedule {
-        max-width: 90%;
-    }
-}
-
-@media screen and (max-width: 768px) {
-    .chat-hidden .schedule {
-        max-width: 95%;
-    }
-    
-    #calendar {
-        min-height: 500px;
-    }
-}
-
-/* 统一事件的背景颜色和样式 */
-.fc-event {
-    background-color: rgba(52, 199, 89, 0.9); /* 统一背景颜色 */
-    color: #ffffff; /* 统一字体颜色 */
-    border: none; /* 移除边框 */
-    border-radius: 6px; /* 统一圆角 */
-    padding: 2px 4px; /* 统一内边距 */
-    font-size: 12px; /* 统一字体大小 */
-    transition: all 0.3s ease; /* 统一过渡效果 */
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* 统一阴影 */
-}
-
-.fc-event:hover {
-    background-color: rgba(52, 199, 89, 1); /* 悬停时的背景颜色 */
-    transform: translateY(-1px); /* 悬停时的位移效果 */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.15); /* 悬停时的阴影 */
-}
-
-/* 统一日历头部的样式 */
-.fc .fc-toolbar-title {
-    font-size: 24px;
-    font-weight: 600;
-    color: #1d1d1f;
-}
-
-/* 统一今天的样式 */
-.fc-day-today {
-    background-color: rgba(232, 240, 254, 0.9) !important;
-}
-
-.fc-day-today .fc-daygrid-day-frame:hover {
-    background-color: rgba(232, 240, 254, 1) !important;
-}
-
-/* 统一假日和特殊事件的视觉指示器 */
-.fc-day-holiday {
-    background-color: #ffefef;
-}
-
-.fc-day-holiday::before {
-    content: '🎉';
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    font-size: 10px;
-}
-
-/* 统一日历网格的背景颜色 */
-.fc .fc-view-harness {
-    background-color: rgba(240, 240, 245, 0.8);
-}
-
-/* 统一日期单元格的样式 */
-.fc-daygrid-day-frame {
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    border: 1px solid #e0e0e0;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    overflow: hidden;
-}
-
-.fc-daygrid-day-frame:hover {
-    transform: scale(1.02);
-    box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.15);
-    background-color: rgba(255, 255, 255, 1);
-}
-
-/* 统一日历头部单元格样式 */
-.fc-col-header-cell {
-    background-color: rgba(240, 240, 245, 0.8);
-    border-radius: 10px 10px 0 0;
-    border: 1px solid #e0e0e0;
-    border-bottom: none;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-/* 默认样式，适用于横屏模式 */
-.toggle-chat-btn {
-    position: absolute;
-    right: 25%;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: #0071e3;
-    color: white;
-    border: none;
-    padding: 10px 5px;
-    cursor: pointer;
-    z-index: 10;
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-.toggle-chat-btn i {
-    transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-.chat {
-    transition: all 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-.chat-hidden .chat {
-    transform: translateX(100%);
-    width: 0;
-    padding: 0;
-    overflow: hidden;
-}
-
-.chat-hidden .toggle-chat-btn {
-    right: 0;
-}
-
-.chat-hidden .toggle-chat-btn i {
-    transform: rotate(180deg);
-}
-
-/* 在竖屏模式下禁用收回功能 */
-@media screen and (max-width: 768px) {
-    .toggle-chat-btn {
-        display: none; /* 隐藏切换按钮 */
-    }
-
-    .chat {
-        transform: none !important; /* 确保聊天框始终可见 */
-        width: 100%; /* 占满可用宽度 */
-        padding: 20px; /* 恢复内边距 */
-    }
-
-    .schedule {
-        width: 100%; /* 确保日历占满可用宽度 */
-    }
-}
-
-.custom-time-indicator {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: #ff0000;
-    pointer-events: none;
-    z-index: 100;
-}
-
-.fc-timegrid-body {
-    position: relative;
-}
-
-/* 确保日历头部的按钮在一行中排列 */
-.fc-header-toolbar {
+/* Toast */
+.toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
     display: flex;
-    align-items: center; /* 垂直居中对齐 */
-    justify-content: space-between; /* 在主轴上均匀分布 */
-    flex-wrap: nowrap; /* 防止换行 */
-    padding: 5px; /* 减少内边距 */
+    flex-direction: column;
+    gap: 12px;
+    z-index: 50;
 }
 
-/* 调整按钮的样式 */
-.fc-button {
-    margin: 0 5px; /* 按钮之间的间距 */
-    padding: 5px 10px; /* 减小按钮内边距 */
-    font-size: 0.9em; /* 稍微减小字体大小 */
-}
-
-/* 确保标题和日期在同一行 */
-.fc-toolbar-title {
-    margin: 0 10px; /* 标题与按钮之间的间距 */
-    font-size: 1.2em; /* 调整标题大小 */
-}
-
-/* 在小屏幕上进一步优化 */
-@media screen and (max-width: 768px) {
-    .fc-header-toolbar {
-        flex-direction: row; /* 确保在小屏幕上仍然是横向排列 */
-        justify-content: center; /* 居中对齐 */
-    }
-
-    .fc-button {
-        padding: 4px 8px; /* 进一步减小按钮内边距 */
-        font-size: 0.8em; /* 减小字体大小 */
-    }
-}
-
-/* 顶部导航栏样式 */
-.schedule-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px;
-    background-color: #f5f5f7;
-    border-radius: 10px 10px 0 0;
-    gap: 6px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* 完全隐藏原始的日历工具栏 */
-.fc .fc-toolbar.fc-header-toolbar {
-    display: none !important;
-}
-
-/* 导航按钮组样式 */
-.calendar-nav-buttons {
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
-}
-
-.calendar-nav-button {
-    background-color: #0071e3;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 6px;
-    color: white;
-    font-size: 13px;
-    cursor: pointer;
-}
-
-.calendar-today-button {
-    background-color: #6e6e73;
-}
-
-/* 日期标题样式 */
-.calendar-title {
-    font-size: 1em;
+.toast {
+    min-width: 220px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    color: #fff;
     font-weight: 500;
-    margin: 0 8px;
-    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+    animation: toast-in 0.25s ease forwards;
 }
 
-/* 视图切换按钮组样式 */
-.calendar-view-buttons {
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
+.toast.success {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
 }
 
-.calendar-view-button {
-    background-color: #0071e3;
-    border: none;
-    padding: 4px 8px;
-    border-radius: 6px;
-    color: white;
-    font-size: 13px;
-    cursor: pointer;
+.toast.error {
+    background: linear-gradient(135deg, #f87171, #ef4444);
 }
 
-.calendar-view-button.active {
-    background-color: #005bbf;
+.toast.info {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
 }
 
-/* 其他工具按钮样式 */
-.tools-group {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: auto;
-    flex-shrink: 0;
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* 响应式调整 */
-@media screen and (max-width: 768px) {
-    .schedule-header {
-        padding: 6px;
-        gap: 4px;
+/* Responsive */
+@media (max-width: 1200px) {
+    .app-main {
+        grid-template-columns: 1fr;
     }
 
-    .calendar-nav-button,
-    .calendar-view-button {
-        padding: 3px 6px;
-        font-size: 12px;
+    .assistant-panel {
+        flex-direction: row;
+        flex-wrap: wrap;
     }
 
-    .calendar-title {
-        font-size: 0.9em;
+    .assistant-card {
+        flex: 1 1 320px;
+    }
+}
+
+@media (max-width: 768px) {
+    .app-shell {
+        padding: 20px;
     }
 
-    .toggle-switch .toggle-text {
+    .app-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .calendar-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .toolbar-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .panel-card {
+        min-height: auto;
+    }
+
+    .assistant-panel {
+        flex-direction: column;
+    }
+
+    .chat-box {
+        max-height: 240px;
+    }
+}
+
+@media (max-width: 520px) {
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .memory-toggle .toggle-label {
         display: none;
     }
-}
 
+    .quick-prompts {
+        flex-direction: column;
+    }
+}
